@@ -71,4 +71,19 @@ class ArticleController extends Controller
 
             return response()->json($comment, 201);
         }
+
+        public function comments($id)
+        {
+            $article = Article::findOrFail($id);
+
+            $comments = $article->comments()
+                ->orderByDesc('id')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'comments' => $comments,
+            ]);
+        }
+
 }

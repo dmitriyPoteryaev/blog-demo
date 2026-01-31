@@ -16,6 +16,9 @@ use App\Http\Controllers\Api\AuthController;
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{id}', [ArticleController::class, 'show']);
 
+// Comments (read-only)
+Route::get('/articles/{id}/comments', [ArticleController::class, 'comments']);
+
 /*
 |--------------------------------------------------------------------------
 | Auth routes (Sanctum SPA cookie-mode)
@@ -46,6 +49,6 @@ Route::middleware(['web', 'auth:sanctum'])->group(function () {
     // Articles (write)
     Route::post('/articles', [ArticleController::class, 'store']);
 
-    // Comments
+    // Comments (write)
     Route::post('/articles/{id}/comments', [ArticleController::class, 'storeComment']);
 });
