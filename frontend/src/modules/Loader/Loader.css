@@ -1,0 +1,12 @@
+.pageOrder__loader {
+    display: flex;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.pageOrder__loader_Content {
+
+    display: flex;
+    flex-direction: column;
+}
