@@ -1,18 +1,22 @@
-import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AuthForm from "modules/AuthForm";
-
+import Blog from "modules/Blog";
+import Auth from "modules/Auth";
 
 const AppRouter = () => {
   return (
-   <BrowserRouter>
+    <BrowserRouter>
       <Routes>
-        <Route path="/sign-in" element={<AuthForm mode="signIn" />} />
-        <Route path="/sign-up" element={<AuthForm mode="signUp" />} />
-        <Route path="*" element={<Navigate to="/sign-in" replace />} />
+        {/* Страница авторизации */}
+        <Route path="/auth" element={<Auth />} />
+
+        {/* Страница блога */}
+        <Route path="/blog" element={<Blog />} />
+
+        {/* fallback */}
+        <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
     </BrowserRouter>
   );
 };
-export default AppRouter;
 
+export default AppRouter;
