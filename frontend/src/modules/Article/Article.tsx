@@ -367,9 +367,6 @@ const Article: React.FC = () => {
 
                 {/* Add comment */}
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginTop: 14 }}>
-                  <Avatar size={40} style={{ background: "#1677ff" }}>
-                    A
-                  </Avatar>
 
                   <div style={{ flex: 1 }}>
                     <Input.TextArea

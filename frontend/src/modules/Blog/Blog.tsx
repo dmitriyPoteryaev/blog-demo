@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Card, Typography, Space, Button, message, Spin, Empty, Tag } from "antd";
-import { LogoutOutlined } from "@ant-design/icons";
+import { LogoutOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 const { Header, Content } = Layout;
@@ -147,6 +147,9 @@ export const Blog: React.FC = () => {
           padding: "0 16px",
         }}
       >
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate("/article/new")}>
+          Опубликовать статью
+        </Button>
         <Button type="text" icon={<LogoutOutlined />} onClick={onLogout} style={{ color: "#fff" }}>
           Logout
         </Button>
