@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Card, Typography, Space, Button, message, Spin, Empty, Tag } from "antd";
-import { LogoutOutlined, PlusOutlined } from "@ant-design/icons";
+import { Layout, Card, Typography, Space, message, Spin, Empty, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
+import AppHeader from "shared/components/AppHeader/AppHeader"
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Paragraph, Text } = Typography;
 
 type Article = {
@@ -16,29 +16,6 @@ type Article = {
 };
 
 const API_BASE = "http://localhost:8090";
-
-/* =======================
-   CSRF helpers (Sanctum)
-   ======================= */
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, "\\$1")}=([^;]*)`)
-  );
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-async function ensureCsrfCookie() {
-  await fetch(`${API_BASE}/sanctum/csrf-cookie?t=${Date.now()}`, {
-    method: "GET",
-    credentials: "include",
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-      "Cache-Control": "no-cache",
-      Pragma: "no-cache",
-    },
-  });
-}
 
 function formatCreatedAt(createdAt?: string | null) {
   if (!createdAt) return "—";
@@ -97,34 +74,6 @@ export const Blog: React.FC = () => {
     return () => controller.abort();
   }, []);
 
-  const onLogout = async () => {
-    try {
-      await ensureCsrfCookie();
-
-      const xsrfToken = getCookie("XSRF-TOKEN");
-      if (!xsrfToken) throw new Error("XSRF-TOKEN cookie not found");
-
-      const res = await fetch(`${API_BASE}/api/auth/logout?t=${Date.now()}`, {
-        method: "POST",
-        credentials: "include",
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "X-XSRF-TOKEN": xsrfToken,
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      });
-
-      if (!res.ok) throw new Error(`POST /api/auth/logout failed: ${res.status}`);
-
-      message.success("Logged out");
-      navigate("/login");
-    } catch (e: any) {
-      message.error(e?.message ?? "Logout failed");
-    }
-  };
-
   const openArticle = (id: Article["id"]) => {
     navigate(`/article/${id}`);
   };
@@ -138,22 +87,7 @@ export const Blog: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#fff" }}>
-      <Header
-        style={{
-          background: "#000",
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          padding: "0 16px",
-        }}
-      >
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate("/article/new")}>
-          Опубликовать статью
-        </Button>
-        <Button type="text" icon={<LogoutOutlined />} onClick={onLogout} style={{ color: "#fff" }}>
-          Logout
-        </Button>
-      </Header>
+    <AppHeader/>
 
       <Content style={{ padding: "28px 16px", display: "flex", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 760 }}>

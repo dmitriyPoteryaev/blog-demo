@@ -13,13 +13,14 @@ import {
   Input,
   message,
 } from "antd";
-import { ArrowLeftOutlined, SendOutlined, LogoutOutlined } from "@ant-design/icons";
-import { useNavigate, useParams } from "react-router-dom";
+import { SendOutlined } from "@ant-design/icons";
+import { useParams } from "react-router-dom";
+import AppHeader from "shared/components/AppHeader/AppHeader"
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
-type Article = {
+type ArticleDto  = {
   id: number | string;
   title: string;
   content?: string | null;
@@ -83,9 +84,8 @@ function initials(name: string) {
 const Article: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const articleId = id ?? "";
-  const navigate = useNavigate();
 
-  const [article, setArticle] = useState<Article | null>(null);
+  const [article, setArticle] = useState<ArticleDto | null>(null);
   const [comments, setComments] = useState<ApiComment[]>([]);
   const [loadingArticle, setLoadingArticle] = useState(true);
   const [loadingComments, setLoadingComments] = useState(true);
@@ -117,7 +117,7 @@ const Article: React.FC = () => {
     if (!res.ok) throw new Error(`GET /api/articles/${articleId} failed: ${res.status}`);
 
     const data = await res.json();
-    const a: Article = data?.data ?? data?.article ?? data;
+    const a: ArticleDto = data?.data ?? data?.article ?? data;
     setArticle(a);
   };
 
@@ -234,58 +234,9 @@ const Article: React.FC = () => {
     }
   };
 
-  const onLogout = async () => {
-    try {
-      await ensureCsrfCookie();
-
-      const xsrfToken = getCookie("XSRF-TOKEN");
-      if (!xsrfToken) throw new Error("XSRF-TOKEN cookie not found");
-
-      const res = await fetch(`${API_BASE}/api/auth/logout?t=${Date.now()}`, {
-        method: "POST",
-        credentials: "include",
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "X-XSRF-TOKEN": xsrfToken,
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      });
-
-      if (!res.ok) throw new Error(`POST /api/auth/logout failed: ${res.status}`);
-
-      message.success("Logged out");
-      navigate("/auth");
-    } catch (e: any) {
-      message.error(e?.message ?? "Logout failed");
-    }
-  };
-
   return (
     <Layout style={{ minHeight: "100vh", background: "#fff" }}>
-      <Header
-        style={{
-          background: "#000",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 16px",
-        }}
-      >
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate("/blog")}
-          style={{ color: "#fff" }}
-        >
-          Back
-        </Button>
-
-        <Button type="text" icon={<LogoutOutlined />} onClick={onLogout} style={{ color: "#fff" }}>
-          Logout
-        </Button>
-      </Header>
+    <AppHeader showBack />
 
       <Content style={{ padding: "28px 16px", display: "flex", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 860 }}>

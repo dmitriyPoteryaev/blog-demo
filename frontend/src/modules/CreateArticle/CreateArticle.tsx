@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { Layout, Card, Typography, Input, Button, Space, message } from "antd";
-import { ArrowLeftOutlined, LogoutOutlined, SendOutlined } from "@ant-design/icons";
+import { Layout, Card, Typography, Input, Button, message } from "antd";
+import { SendOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import AppHeader from "shared/components/AppHeader/AppHeader"
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Title, Text } = Typography;
 
 const API_BASE = "http://localhost:8090";
@@ -35,18 +36,6 @@ const CreateArticle = () => {
 
   const onBack = () => navigate("/blog");
 
-  const onLogout = async () => {
-    try {
-      await fetch(`${API_BASE}/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "X-XSRF-TOKEN": getXsrfToken() },
-      });
-    } catch {
-      // ignore
-    }
-    navigate("/auth", { replace: true });
-  };
 
   const onPublish = async () => {
     if (!canSubmit) return;
@@ -94,35 +83,7 @@ const CreateArticle = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#fff" }}>
-      <Header
-        style={{
-          background: "#000",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 16px",
-        }}
-      >
-        <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} style={{ color: "#fff" }}>
-          Back
-        </Button>
-
-        <Space>
-          <Button
-            type="primary"
-            icon={<SendOutlined />}
-            onClick={onPublish}
-            loading={loading}
-            disabled={!canSubmit}
-          >
-            Опубликовать
-          </Button>
-
-          <Button type="text" icon={<LogoutOutlined />} onClick={onLogout} style={{ color: "#fff" }}>
-            Logout
-          </Button>
-        </Space>
-      </Header>
+    <AppHeader showBack />
 
       <Content style={{ padding: "32px 16px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
