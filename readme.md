@@ -25,11 +25,11 @@ cd <repo>
 
 docker compose up -d --build
 
+cp backend/.env.example backend/.env
 docker compose exec php composer install
 docker compose exec php php artisan key:generate
 docker compose exec php php artisan migrate
 docker compose exec php php artisan db:seed
 
-
-## После успешного выполнения смотреть в браузере
-http://localhost:8090
+# open in browser:
+# http://localhost:8090
