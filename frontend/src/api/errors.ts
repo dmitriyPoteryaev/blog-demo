@@ -1,19 +1,33 @@
-
 import axios from "axios";
-import type  {ApiErrorResponse}  from "shared/types/types";
+import type { ApiErrorResponse } from "shared/types/types";
 
 export function getErrorMessage(err: unknown): string {
-  if (axios.isAxiosError<ApiErrorResponse>(err)) {
-    const data = err.response?.data;
 
-    if (data?.errors) {
-      return Object.values(data.errors)[0]?.[0] ?? data.message;
+  if (axios.isAxiosError(err)) {
+    const response = err.response;
+    const data = response?.data as ApiErrorResponse | undefined;
+
+    if (data) {
+      if (data.errors && typeof data.errors === "object") {
+        const firstError = Object.values(data.errors)[0];
+        if (Array.isArray(firstError) && typeof firstError[0] === "string") {
+          return firstError[0];
+        }
+      }
+
+      if (typeof data.message === "string" && data.message) {
+        return data.message;
+      }
     }
 
-    return data?.message ?? "Ошибка запроса";
+    if (err.message) {
+      return err.message;
+    }
+
+    return "Ошибка запроса";
   }
 
-  if (err instanceof Error) {
+  if (err instanceof Error && err.message) {
     return err.message;
   }
 

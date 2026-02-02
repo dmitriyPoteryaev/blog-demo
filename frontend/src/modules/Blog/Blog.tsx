@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import AppHeader from "shared/components/AppHeader/AppHeader";
 import ArticleCard from "shared/components/ArticleCard/ArticleCard";
 import { fetchArticles } from "api/articles";
-import type  {Article}  from "shared/types/types";
+import type  {ArticleDto}  from "shared/types/types";
 
 const { Content } = Layout;
 
 const Blog = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<ArticleDto[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ const Blog = () => {
     load();
   }, []);
 
-  const openArticle = (id: Article["id"]) => {
+  const openArticle = (id: string) => {
     navigate(`/article/${id}`);
   };
 
@@ -61,10 +61,10 @@ const Blog = () => {
             <Space direction="vertical" size={22} style={{ width: "100%" }}>
               {articles.map((article) => (
                 <ArticleCard
-                  key={article.id}
-                  article={article}
-                  onOpen={openArticle}
-                />
+                key={String(article.id)}
+                article={article}
+                onOpen={openArticle}
+/>
               ))}
             </Space>
           )}

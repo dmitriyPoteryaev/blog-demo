@@ -1,37 +1,28 @@
 import { Card, Typography, Tag } from "antd";
+import type { ArticleDto } from "shared/types/types";
 
 const { Paragraph, Text } = Typography;
 
-export interface Author {
-  id: number;
-  name: string;
-}
-
-export interface Article {
-  id: number;
-  title: string;
-  content: string;
-  author: Author | null;
-  created_at: string;
-}
-
 type Props = {
-  article: Article;
-  onOpen: (id: number) => void;
+  article: ArticleDto;
+  onOpen: (id: string) => void;
 };
 
-function formatCreatedAt(createdAt: string) {
+function formatCreatedAt(createdAt?: string | null) {
+  if (!createdAt) return "—";
   const d = new Date(createdAt);
   return Number.isNaN(d.getTime()) ? createdAt : d.toLocaleString();
 }
 
 const ArticleCard = ({ article, onOpen }: Props) => {
-  const authorName = article.author?.name ?? "Unknown";
+  const authorName =
+    article.author?.name?.trim() ||
+    (article.user_id != null ? `User ${article.user_id}` : "Unknown");
 
   return (
     <Card
       hoverable
-      onClick={() => onOpen(article.id)}
+      onClick={() => onOpen(String(article.id))}
       style={{
         width: "100%",
         borderRadius: 16,
@@ -46,31 +37,23 @@ const ArticleCard = ({ article, onOpen }: Props) => {
           <Text strong ellipsis title={article.title} style={{ flex: 1, minWidth: 0 }}>
             {article.title}
           </Text>
-
           <Tag color="blue" style={{ margin: 0 }}>
             {authorName}
           </Tag>
         </div>
       }
     >
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <Paragraph style={{ margin: 0 }} ellipsis={{ rows: 3 }}>
-          {article.content}
-        </Paragraph>
+      <Paragraph
+        style={{ margin: 0, whiteSpace: "pre-wrap" }}
+        ellipsis={{ rows: 3, expandable: false }}
+      >
+        {article.content ?? ""}
+      </Paragraph>
 
-        <div
-          style={{
-            marginTop: "auto",
-            paddingTop: 10,
-            borderTop: "1px solid rgba(0,0,0,0.08)",
-            display: "flex",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            Created: {formatCreatedAt(article.created_at)}
-          </Text>
-        </div>
+      <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
+        <Text type="secondary" style={{ fontSize: 12 }}>
+          {formatCreatedAt(article.created_at)}
+        </Text>
       </div>
     </Card>
   );

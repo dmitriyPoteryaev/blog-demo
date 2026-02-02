@@ -6,16 +6,10 @@ import { FormInput, FormPassword } from "shared/components/Input";
 import { getErrorMessage } from "api/errors";
 import { confirmPasswordValidator } from "shared/validators/password";
 
-type Mode = "signIn" | "signUp";
+import type  {Mode, AuthValues}  from "shared/types/types";
 
 type Props = {
   mode: Mode;
-};
-
-type AuthValues = {
-  email: string;
-  password: string;
-  confirmPassword?: string;
 };
 
 const AuthForm = ({ mode }: Props) => {
