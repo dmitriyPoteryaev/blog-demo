@@ -1,5 +1,5 @@
 
-import {API_BASE} from "shared/config/api";
+import { http } from "api/http";
 
 export interface Author {
   id: number;
@@ -14,19 +14,7 @@ export interface Article {
   created_at: string;
 }
 
-
 export async function fetchArticles(): Promise<Article[]> {
-  const res = await fetch(`${API_BASE}/api/articles`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to load articles (${res.status})`);
-  }
-
-  return res.json();
+  const res = await http.get<Article[]>("/api/articles");
+  return res.data;
 }

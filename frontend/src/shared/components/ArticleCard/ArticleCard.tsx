@@ -11,7 +11,7 @@ export interface Article {
   id: number;
   title: string;
   content: string;
-  author: Author;
+  author: Author | null;
   created_at: string;
 }
 
@@ -26,6 +26,8 @@ function formatCreatedAt(createdAt: string) {
 }
 
 const ArticleCard = ({ article, onOpen }: Props) => {
+  const authorName = article.author?.name ?? "Unknown";
+
   return (
     <Card
       hoverable
@@ -40,23 +42,25 @@ const ArticleCard = ({ article, onOpen }: Props) => {
         body: { padding: "18px" },
       }}
       title={
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Text strong ellipsis title={article.title}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+          <Text strong ellipsis title={article.title} style={{ flex: 1, minWidth: 0 }}>
             {article.title}
           </Text>
 
-          <Tag color="blue">{article.author.name}</Tag>
+          <Tag color="blue" style={{ margin: 0 }}>
+            {authorName}
+          </Tag>
         </div>
       }
     >
-      <div style={{ height: 170, display: "flex", flexDirection: "column" }}>
-        <Paragraph ellipsis={{ rows: 6 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Paragraph style={{ margin: 0 }} ellipsis={{ rows: 3 }}>
           {article.content}
         </Paragraph>
 
         <div
           style={{
-            marginTop: 12,
+            marginTop: "auto",
             paddingTop: 10,
             borderTop: "1px solid rgba(0,0,0,0.08)",
             display: "flex",

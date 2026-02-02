@@ -4,8 +4,10 @@ import AuthForm from "../AuthForm";
 
 const { Link, Title } = Typography;
 
+type Mode = "signIn" | "signUp";
+
 const Auth = () => {
-  const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
+  const [mode, setMode] = useState<Mode>("signIn");
 
   return (
     <div style={{ maxWidth: 420, margin: "80px auto" }}>

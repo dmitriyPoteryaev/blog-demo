@@ -1,10 +1,10 @@
 import { Form, Button, Alert } from "antd";
-import type { FormInstance } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signIn, signUp } from "api/auth";
 import { FormInput, FormPassword } from "shared/components/Input";
-import axios from "axios";
+import { getErrorMessage } from "api/errors";
+import { confirmPasswordValidator } from "shared/validators/password";
 
 type Mode = "signIn" | "signUp";
 
@@ -17,21 +17,6 @@ type AuthValues = {
   password: string;
   confirmPassword?: string;
 };
-
-function getErrorMessage(err: unknown): string {
-  // Если signIn/signUp используют axios — это самый частый кейс
-  if (axios.isAxiosError(err)) {
-    const msg = err.response?.data?.message;
-    if (typeof msg === "string" && msg.trim()) return msg;
-  }
-
-  // Если кинули обычный Error
-  if (err instanceof Error) {
-    if (err.message.trim()) return err.message;
-  }
-
-  return "Ошибка авторизации";
-}
 
 const AuthForm = ({ mode }: Props) => {
   const [error, setError] = useState<string | null>(null);
@@ -82,26 +67,20 @@ const AuthForm = ({ mode }: Props) => {
       </Form.Item>
 
       {mode === "signUp" && (
-        <Form.Item
-          name="confirmPassword"
-          label="Confirm password"
-          dependencies={["password"]}
-          rules={[
-            { required: true, message: "Подтверди пароль" },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                const pass = getFieldValue("password");
-                if (!value || value === pass) return Promise.resolve();
-                return Promise.reject(new Error("Пароли не совпадают"));
-              },
-            }),
-          ]}
-        >
-          <FormPassword
-            placeholder="Confirm password"
-            autoComplete="new-password"
-          />
-        </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="Confirm password"
+            dependencies={["password"]}
+            rules={[
+              { required: true, message: "Подтверди пароль" },
+              confirmPasswordValidator("password"),
+            ]}
+          >
+            <FormPassword
+              placeholder="Confirm password"
+              autoComplete="new-password"
+            />
+          </Form.Item>
       )}
 
       {error && (

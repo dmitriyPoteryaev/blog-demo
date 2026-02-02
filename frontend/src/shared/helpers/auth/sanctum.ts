@@ -1,7 +1,6 @@
-import { API_BASE } from "shared/config/api";
+
+import { http } from "api/http";
 
 export async function ensureCsrfCookie(): Promise<void> {
-  await fetch(`${API_BASE}/sanctum/csrf-cookie`, {
-    credentials: "include",
-  });
+  await http.get("/sanctum/csrf-cookie");
 }

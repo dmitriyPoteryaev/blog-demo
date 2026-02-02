@@ -1,14 +1,13 @@
 import { http } from "./http";
-
-export const csrf = () => http.get("/sanctum/csrf-cookie");
+import { ensureCsrfCookie } from "shared/helpers/auth/sanctum";
 
 export const signIn = async (email: string, password: string) => {
-  await csrf();
+  await ensureCsrfCookie();
   return http.post("/api/auth/login", { email, password });
 };
 
 export const signUp = async (email: string, password: string) => {
-  await csrf();
+  await ensureCsrfCookie();
   return http.post("/api/auth/register", {
     name: email,
     email,
@@ -17,6 +16,6 @@ export const signUp = async (email: string, password: string) => {
 };
 
 export const logout = async () => {
-  await csrf();
+  await ensureCsrfCookie();
   return http.post("/api/auth/logout");
 };
