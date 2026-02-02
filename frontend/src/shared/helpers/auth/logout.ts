@@ -10,7 +10,7 @@ export async function logout(): Promise<void> {
     throw new Error("XSRF-TOKEN cookie not found");
   }
 
-  const res = await fetch(`${API_BASE}/api/auth/logout`, {
+  const res = await fetch(`/api/auth/logout`, {
     method: "POST",
     credentials: "include",
     headers: {
