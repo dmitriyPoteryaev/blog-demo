@@ -11,8 +11,9 @@ docker compose exec -T php php artisan migrate --force
 docker compose exec -T php php artisan db:seed --force
 
 cd frontend
-npm install
-npm run build
+rm -rf build
+yarn
+yarn build
 cd ..
 
 docker compose restart nginx
