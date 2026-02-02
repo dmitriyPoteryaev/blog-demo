@@ -25,13 +25,11 @@ cd <repo>
 
 docker compose up -d --build
 
-docker compose exec blog_php bash
-cd /var/www/backend
-
-composer install
-php artisan key:generate
-php artisan migrate
-php artisan db:seed
+docker compose exec php composer install
+docker compose exec php php artisan key:generate
+docker compose exec php php artisan migrate
+docker compose exec php php artisan db:seed
 
 
-
+## После успешного выполнения смотреть в браузере
+http://localhost:8090
