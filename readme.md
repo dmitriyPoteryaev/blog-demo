@@ -22,14 +22,9 @@ https://hh.ru/resume/57c4d90cff0fadcf5c0039ed1f6e6b72734536
 ```bash
 git clone <repo>
 cd <repo>
+chmod +x bootstrap.sh
+./bootstrap.sh
 
-docker compose up -d --build
-
-cp backend/.env.example backend/.env
-docker compose exec php composer install
-docker compose exec php php artisan key:generate
-docker compose exec php php artisan migrate
-docker compose exec php php artisan db:seed
 
 # open in browser:
 # http://localhost:8090
