@@ -1,7 +1,8 @@
-import { Form, Input, Button, Alert } from "antd";
+import { Form, Button, Alert } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signIn, signUp } from "api/auth";
+import { FormInput, FormPassword } from "shared/components/Input";
 
 type Mode = "signIn" | "signUp";
 
@@ -9,12 +10,18 @@ type Props = {
   mode: Mode;
 };
 
+type AuthValues = {
+  email: string;
+  password: string;
+  confirmPassword?: string;
+};
+
 const AuthForm = ({ mode }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: AuthValues) => {
     setError(null);
     setLoading(true);
 
@@ -25,19 +32,16 @@ const AuthForm = ({ mode }: Props) => {
         await signUp(values.email, values.password);
       }
 
-      // ✅ успешная авторизация / регистрация
       navigate("/blog", { replace: true });
     } catch (e: any) {
-      setError(
-        e?.response?.data?.message || "Ошибка авторизации"
-      );
+      setError(e?.response?.data?.message || "Ошибка авторизации");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Form layout="vertical" onFinish={onFinish}>
+    <Form<AuthValues> layout="vertical" onFinish={onFinish}>
       <Form.Item
         name="email"
         label="Email"
@@ -46,7 +50,7 @@ const AuthForm = ({ mode }: Props) => {
           { type: "email", message: "Некорректный email" },
         ]}
       >
-        <Input />
+        <FormInput placeholder="Email" autoComplete="email" />
       </Form.Item>
 
       <Form.Item
@@ -54,7 +58,7 @@ const AuthForm = ({ mode }: Props) => {
         label="Password"
         rules={[{ required: true, message: "Пароль обязателен" }]}
       >
-        <Input.Password />
+        <FormPassword placeholder="Password" autoComplete="current-password" />
       </Form.Item>
 
       {mode === "signUp" && (
@@ -66,17 +70,17 @@ const AuthForm = ({ mode }: Props) => {
             { required: true, message: "Подтверди пароль" },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                if (!value || value === getFieldValue("password")) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("Пароли не совпадают")
-                );
+                const pass = getFieldValue("password");
+                if (!value || value === pass) return Promise.resolve();
+                return Promise.reject(new Error("Пароли не совпадают"));
               },
             }),
           ]}
         >
-          <Input.Password />
+          <FormPassword
+            placeholder="Confirm password"
+            autoComplete="new-password"
+          />
         </Form.Item>
       )}
 
@@ -89,12 +93,7 @@ const AuthForm = ({ mode }: Props) => {
         />
       )}
 
-      <Button
-        type="primary"
-        htmlType="submit"
-        block
-        loading={loading}
-      >
+      <Button type="primary" htmlType="submit" block loading={loading}>
         {mode === "signIn" ? "Sign In" : "Sign Up"}
       </Button>
     </Form>

@@ -10,12 +10,12 @@ import {
   Empty,
   Avatar,
   Button,
-  Input,
   message,
 } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
-import AppHeader from "shared/components/AppHeader/AppHeader"
+import AppHeader from "shared/components/AppHeader/AppHeader";
+import { FormTextArea } from "shared/components/Input";
 
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -320,13 +320,13 @@ const Article: React.FC = () => {
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginTop: 14 }}>
 
                   <div style={{ flex: 1 }}>
-                    <Input.TextArea
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Add a comment..."
-                      autoSize={{ minRows: 2, maxRows: 6 }}
-                      style={{ borderRadius: 10 }}
-                    />
+                        <FormTextArea
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Add a comment..."
+                        autoSize={{ minRows: 2, maxRows: 6 }}
+                        style={{ borderRadius: 10 }}
+                      />
 
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
                       <Button
