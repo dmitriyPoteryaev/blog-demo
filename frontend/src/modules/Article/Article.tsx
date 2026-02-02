@@ -1,3 +1,5 @@
+// ✅ REWRITE Article.tsx (no API_BASE, no getCookie, no ensureCsrfCookie inside)
+
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Layout,
@@ -17,10 +19,14 @@ import { useParams } from "react-router-dom";
 import AppHeader from "shared/components/AppHeader/AppHeader";
 import { FormTextArea } from "shared/components/Input";
 
+import { API_BASE } from "shared/config/api";
+import { ensureCsrfCookie, getCookie } from "shared/helpers/auth";
+import { formatCreatedAt, initials } from "shared/helpers/ui/text";
+
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
-type ArticleDto  = {
+type ArticleDto = {
   id: number | string;
   title: string;
   content?: string | null;
@@ -43,43 +49,11 @@ type CommentsResponse = {
   comments: ApiComment[];
 };
 
-const API_BASE = "http://localhost:8090";
-
-/* =======================
-   CSRF helpers (Sanctum)
-   ======================= */
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, "\\$1")}=([^;]*)`)
-  );
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-async function ensureCsrfCookie() {
-  await fetch(`${API_BASE}/sanctum/csrf-cookie?t=${Date.now()}`, {
-    method: "GET",
-    credentials: "include",
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-      "Cache-Control": "no-cache",
-      Pragma: "no-cache",
-    },
-  });
-}
-
-function formatCreatedAt(createdAt?: string | null) {
-  if (!createdAt) return "—";
-  const d = new Date(createdAt);
-  if (Number.isNaN(d.getTime())) return createdAt;
-  return d.toLocaleString();
-}
-
-function initials(name: string) {
-  const t = (name || "Anonymous").trim();
-  if (!t) return "A";
-  return t[0].toUpperCase();
-}
+const commonGetHeaders: HeadersInit = {
+  Accept: "application/json",
+  "Cache-Control": "no-cache",
+  Pragma: "no-cache",
+};
 
 const Article: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -107,11 +81,7 @@ const Article: React.FC = () => {
       credentials: "include",
       cache: "no-store",
       signal,
-      headers: {
-        Accept: "application/json",
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
+      headers: commonGetHeaders,
     });
 
     if (!res.ok) throw new Error(`GET /api/articles/${articleId} failed: ${res.status}`);
@@ -127,11 +97,7 @@ const Article: React.FC = () => {
       credentials: "include",
       cache: "no-store",
       signal,
-      headers: {
-        Accept: "application/json",
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
+      headers: commonGetHeaders,
     });
 
     if (!res.ok) throw new Error(`GET /api/articles/${articleId}/comments failed: ${res.status}`);
@@ -160,7 +126,6 @@ const Article: React.FC = () => {
     })();
 
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articleId]);
 
   useEffect(() => {
@@ -183,16 +148,14 @@ const Article: React.FC = () => {
     })();
 
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articleId]);
 
   const sendComment = async () => {
     const content = commentText.trim();
     if (!content) return;
 
+    setSending(true);
     try {
-      setSending(true);
-
       await ensureCsrfCookie();
 
       const xsrfToken = getCookie("XSRF-TOKEN");
@@ -236,7 +199,7 @@ const Article: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#fff" }}>
-    <AppHeader showBack />
+      <AppHeader showBack />
 
       <Content style={{ padding: "28px 16px", display: "flex", justifyContent: "center" }}>
         <div style={{ width: "100%", maxWidth: 860 }}>
@@ -254,11 +217,8 @@ const Article: React.FC = () => {
                 borderRadius: 16,
                 boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
               }}
-              styles={{
-                body: { padding: "18px" },
-              }}
+              styles={{ body: { padding: "18px" } }}
             >
-              {/* ===== Article header inside body (NOT Card title) ===== */}
               <div
                 style={{
                   borderBottom: "1px solid rgba(0,0,0,0.06)",
@@ -274,7 +234,6 @@ const Article: React.FC = () => {
                       margin: 0,
                       fontSize: 34,
                       lineHeight: 1.25,
-
                       overflowWrap: "anywhere",
                       wordBreak: "break-word",
                       hyphens: "auto",
@@ -296,7 +255,6 @@ const Article: React.FC = () => {
                 </div>
               </div>
 
-              {/* ===== Article content ===== */}
               <div style={{ maxWidth: 760, margin: "0 auto" }}>
                 {(article.content ?? "")
                   .split("\n\n")
@@ -310,23 +268,20 @@ const Article: React.FC = () => {
 
               <Divider style={{ margin: "18px 0" }} />
 
-              {/* ===== Comments ===== */}
               <div style={{ maxWidth: 760, margin: "0 auto" }}>
                 <Title level={4} style={{ margin: 0, fontSize: 20 }}>
                   Comments
                 </Title>
 
-                {/* Add comment */}
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginTop: 14 }}>
-
                   <div style={{ flex: 1 }}>
-                        <FormTextArea
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="Add a comment..."
-                        autoSize={{ minRows: 2, maxRows: 6 }}
-                        style={{ borderRadius: 10 }}
-                      />
+                    <FormTextArea
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Add a comment..."
+                      autoSize={{ minRows: 2, maxRows: 6 }}
+                      style={{ borderRadius: 10 }}
+                    />
 
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
                       <Button
@@ -344,7 +299,6 @@ const Article: React.FC = () => {
 
                 <Divider style={{ margin: "14px 0" }} />
 
-                {/* Comments list */}
                 {loadingComments ? (
                   <div style={{ display: "flex", justifyContent: "center", padding: "18px 0" }}>
                     <Spin />
