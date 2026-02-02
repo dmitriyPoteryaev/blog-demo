@@ -1,81 +1,37 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Layout, Card, Typography, Input, Button, message } from "antd";
 import { SendOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import AppHeader from "shared/components/AppHeader/AppHeader"
+import AppHeader from "shared/components/AppHeader/AppHeader";
+import { createArticle } from "api/articles";
+import { getErrorMessage } from "api/errors";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-const API_BASE = "http://localhost:8090";
-
-/* =======================
-   CSRF helpers (Sanctum)
-   ======================= */
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(
-    new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, "\\$1")}=([^;]*)`)
-  );
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function getXsrfToken(): string {
-  return getCookie("XSRF-TOKEN") ?? "";
-}
-
 const CreateArticle = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-  const canSubmit = useMemo(() => {
-    return title.trim().length > 0 && content.trim().length > 0;
-  }, [title, content]);
-
-  const onBack = () => navigate("/blog");
-
+const canSubmit = title.trim().length > 0 && content.trim().length > 0;
 
   const onPublish = async () => {
     if (!canSubmit) return;
 
     setLoading(true);
     try {
-      await fetch(`${API_BASE}/sanctum/csrf-cookie`, { credentials: "include" });
-
-      const res = await fetch(`${API_BASE}/api/articles`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-XSRF-TOKEN": getXsrfToken(),
-        },
-        body: JSON.stringify({
-          title: title.trim(),
-          content: content.trim(),
-        }),
+      const article = await createArticle({
+        title: title.trim(),
+        content: content.trim(),
       });
 
-      const data: any = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        const errorMessage =
-          data?.message ||
-          (data?.errors && typeof data.errors === "object"
-            ? Object.values(data.errors).flat().join(", ")
-            : "Ошибка публикации");
-        throw new Error(errorMessage);
-      }
-
       message.success("Статья опубликована");
-
-      const articleId = data?.id ?? data?.article?.id;
-      if (articleId) navigate(`/article/${articleId}`);
-      else navigate("/blog");
+      navigate(`/article/${article.id}`);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Ошибка публикации";
-      message.error(msg);
+      message.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -83,11 +39,11 @@ const CreateArticle = () => {
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#fff" }}>
-    <AppHeader showBack />
+      <AppHeader showBack />
 
       <Content style={{ padding: "32px 16px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <Card style={{ borderRadius: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.06)" }}>
+          <Card style={{ borderRadius: 12 }}>
             <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
               Создать статью
             </Title>
@@ -97,25 +53,22 @@ const CreateArticle = () => {
                 <Text strong>Заголовок</Text>
                 <Input
                   size="large"
-                  placeholder="Очень длинный заголовок статьи..."
                   value={title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
 
               <div>
                 <Text strong>Текст статьи</Text>
                 <Input.TextArea
-                  placeholder="Пиши здесь текст статьи…"
                   value={content}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
-                  autoSize={{ minRows: 14, maxRows: 26 }}
-                  style={{ fontSize: 16, lineHeight: 1.6 }}
+                  onChange={(e) => setContent(e.target.value)}
+                  autoSize={{ minRows: 14 }}
                 />
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                <Button onClick={onBack}>Отмена</Button>
+                <Button onClick={() => navigate("/blog")}>Отмена</Button>
                 <Button
                   type="primary"
                   icon={<SendOutlined />}
@@ -132,6 +85,6 @@ const CreateArticle = () => {
       </Content>
     </Layout>
   );
-}
+};
 
 export default CreateArticle;

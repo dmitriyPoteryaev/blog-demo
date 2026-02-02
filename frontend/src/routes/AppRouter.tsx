@@ -12,7 +12,6 @@ const AppRouter = () => {
 
         <Route path="/blog" element={<Blog />} />
 
-        {/* ✅ Страница одной статьи */}
         <Route path="/article/:id" element={<Article />} />
         <Route path="/article/new" element={<CreateArticle />} />
 

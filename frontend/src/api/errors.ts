@@ -1,10 +1,6 @@
-// src/api/errors.ts
-import axios from "axios";
 
-export interface ApiErrorResponse {
-  message: string;
-  errors?: Record<string, string[]>;
-}
+import axios from "axios";
+import type  {ApiErrorResponse}  from "shared/types/types";
 
 export function getErrorMessage(err: unknown): string {
   if (axios.isAxiosError<ApiErrorResponse>(err)) {

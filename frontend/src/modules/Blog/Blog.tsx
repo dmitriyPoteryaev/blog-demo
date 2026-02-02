@@ -3,7 +3,8 @@ import { Layout, Space, message, Spin, Empty } from "antd";
 import { useNavigate } from "react-router-dom";
 import AppHeader from "shared/components/AppHeader/AppHeader";
 import ArticleCard from "shared/components/ArticleCard/ArticleCard";
-import { Article, fetchArticles } from "api/articles";
+import { fetchArticles } from "api/articles";
+import type  {Article}  from "shared/types/types";
 
 const { Content } = Layout;
 
